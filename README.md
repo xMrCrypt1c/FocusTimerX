@@ -1,8 +1,14 @@
 # FocusTimerX
 
-> A minimalist, calm, and reliable cross-platform focus timer with real-time multi-device synchronization.
+> A minimalist, calm, and reliable cross-platform focus timer with real-time multi-device synchronization, daily goals, and streaks.
 
-FocusTimerX runs on desktop browsers, installs as an offline-capable Progressive Web App (PWA) on Android and iOS, and can be compiled into a native Android APK using Capacitor.
+[![Live Website](https://img.shields.io/badge/Web_App-Live_Online-emerald?style=for-the-badge&logo=googlechrome)](https://xmrcrypt1c.github.io/FocusTimerX/)
+[![Download Android APK](https://img.shields.io/badge/Android_APK-1--Click_Download-rose?style=for-the-badge&logo=android)](https://github.com/xMrCrypt1c/FocusTimerX/releases)
+[![GitHub Pages](https://img.shields.io/badge/GitHub-Pages_Deployed-blue?style=for-the-badge&logo=github)](https://xmrcrypt1c.github.io/FocusTimerX/)
+
+### 🚀 Quick Links
+- 🌐 **Live Web Application**: [https://xmrcrypt1c.github.io/FocusTimerX/](https://xmrcrypt1c.github.io/FocusTimerX/)
+- 📱 **Download Android APK**: [https://github.com/xMrCrypt1c/FocusTimerX/releases](https://github.com/xMrCrypt1c/FocusTimerX/releases)
 
 ---
 

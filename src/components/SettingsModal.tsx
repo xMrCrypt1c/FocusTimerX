@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, BellOff, Volume2, VolumeX, X } from 'lucide-react';
+import { Bell, BellOff, Download, ExternalLink, Volume2, VolumeX, X } from 'lucide-react';
 import {
   dispatchSessionNotification,
   requestNotificationPermission,
@@ -334,6 +334,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Section: Android APK Releases */}
+          <div className="pt-2 border-t border-zinc-800/80">
+            <h3 className="text-xs font-semibold tracking-wider uppercase text-zinc-400 mb-2">
+              Android Universal APK
+            </h3>
+            <a
+              href="https://github.com/xMrCrypt1c/FocusTimerX/releases"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between p-3 rounded-xl bg-zinc-800/40 hover:bg-zinc-800 border border-zinc-700/60 transition group text-xs"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                  <Download className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="font-semibold text-zinc-200 block group-hover:text-white">
+                    Download FocusTimerX.apk
+                  </span>
+                  <span className="text-[11px] text-zinc-400">
+                    1-Click download from GitHub Releases
+                  </span>
+                </div>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-zinc-500 group-hover:text-zinc-300" />
+            </a>
           </div>
         </div>
       </div>
