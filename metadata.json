@@ -1,0 +1,6 @@
+{
+  "name": "FocusTimerX",
+  "description": "Minimalist cross-platform focus timer with real-time multi-device sync, PWA installability, and clean stats.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

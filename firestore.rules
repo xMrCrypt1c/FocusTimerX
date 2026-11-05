@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global Default-Deny Catch-All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidTimerState(data) {
+      return data.keys().hasAll(['status', 'mode', 'durationMs', 'targetEndTimestamp', 'remainingMs', 'completedSessionsCount', 'updatedAt'])
+        && data.keys().hasOnly(['status', 'mode', 'durationMs', 'targetEndTimestamp', 'remainingMs', 'sessionLabel', 'presetName', 'completedSessionsCount', 'updatedAt', 'updatedByDevice'])
+        && (data.status in ['idle', 'running', 'paused'])
+        && (data.mode in ['focus', 'shortBreak', 'longBreak'])
+        && (data.durationMs is number && data.durationMs > 0 && data.durationMs <= 43200000)
+        && (data.targetEndTimestamp is number && data.targetEndTimestamp >= 0)
+        && (data.remainingMs is number && data.remainingMs >= 0)
+        && (data.completedSessionsCount is number && data.completedSessionsCount >= 0)
+        && (data.updatedAt is number)
+        && (!('sessionLabel' in data) || (data.sessionLabel is string && data.sessionLabel.size() <= 60))
+        && (!('presetName' in data) || (data.presetName in ['pomodoro', 'fiftyTen', 'custom']))
+        && (!('updatedByDevice' in data) || (data.updatedByDevice is string && data.updatedByDevice.size() <= 64));
+    }
+
+    function isValidUserSettings(data) {
+      return data.keys().hasAll(['focusDurationMinutes', 'shortBreakDurationMinutes', 'longBreakDurationMinutes', 'longBreakInterval', 'autoStartBreaks', 'autoStartFocus', 'soundEnabled', 'notificationEnabled', 'theme'])
+        && data.keys().hasOnly(['focusDurationMinutes', 'shortBreakDurationMinutes', 'longBreakDurationMinutes', 'longBreakInterval', 'autoStartBreaks', 'autoStartFocus', 'soundEnabled', 'notificationEnabled', 'theme', 'dailyGoalMinutes', 'dailyGoalSessions', 'updatedAt'])
+        && (data.focusDurationMinutes is number && data.focusDurationMinutes >= 1 && data.focusDurationMinutes <= 180)
+        && (data.shortBreakDurationMinutes is number && data.shortBreakDurationMinutes >= 1 && data.shortBreakDurationMinutes <= 60)
+        && (data.longBreakDurationMinutes is number && data.longBreakDurationMinutes >= 1 && data.longBreakDurationMinutes <= 60)
+        && (data.longBreakInterval is number && data.longBreakInterval >= 1 && data.longBreakInterval <= 12)
+        && (data.autoStartBreaks is bool)
+        && (data.autoStartFocus is bool)
+        && (data.soundEnabled is bool)
+        && (data.notificationEnabled is bool)
+        && (data.theme in ['light', 'dark', 'system'])
+        && (!('dailyGoalMinutes' in data) || (data.dailyGoalMinutes is number && data.dailyGoalMinutes >= 10 && data.dailyGoalMinutes <= 720))
+        && (!('dailyGoalSessions' in data) || (data.dailyGoalSessions is number && data.dailyGoalSessions >= 1 && data.dailyGoalSessions <= 30))
+        && (!('updatedAt' in data) || data.updatedAt is number);
+    }
+
+    function isValidSessionRecord(data, userId) {
+      return data.keys().hasAll(['id', 'userId', 'durationMinutes', 'completedAt', 'dayKey', 'mode'])
+        && data.keys().hasOnly(['id', 'userId', 'label', 'durationMinutes', 'completedAt', 'dayKey', 'mode'])
+        && (data.id is string && data.id.size() <= 64 && data.id.matches('^[a-zA-Z0-9_\\-]+$'))
+        && (data.userId == userId && data.userId == request.auth.uid)
+        && (data.durationMinutes is number && data.durationMinutes > 0 && data.durationMinutes <= 180)
+        && (data.completedAt is string && data.completedAt.size() <= 32)
+        && (data.dayKey is string && data.dayKey.size() == 10 && data.dayKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))
+        && (data.mode in ['focus', 'shortBreak', 'longBreak'])
+        && (!('label' in data) || (data.label is string && data.label.size() <= 60));
+    }
+
+    // Health check path for connection tests
+    match /test/connection {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // User scope isolated data
+    match /users/{userId} {
+      allow read, write: if false;
+
+      match /timer/state {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidTimerState(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /settings/config {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidUserSettings(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /sessions/{sessionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(sessionId) && isValidSessionRecord(request.resource.data, userId);
+        allow update: if false; // Session history is immutable
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

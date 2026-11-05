@@ -1,0 +1,188 @@
+{
+  "entities": {
+    "TimerState": {
+      "title": "TimerState",
+      "description": "Active timer synchronization state across all devices for a given user.",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["idle", "running", "paused"],
+          "description": "Current status of the timer"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["focus", "shortBreak", "longBreak"],
+          "description": "Current timer cycle mode"
+        },
+        "durationMs": {
+          "type": "number",
+          "description": "Total duration in milliseconds for the current session"
+        },
+        "targetEndTimestamp": {
+          "type": "number",
+          "description": "Epoch timestamp in milliseconds when the timer is scheduled to complete"
+        },
+        "remainingMs": {
+          "type": "number",
+          "description": "Milliseconds remaining when paused or idle"
+        },
+        "sessionLabel": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "Optional user label for the focus session"
+        },
+        "presetName": {
+          "type": "string",
+          "enum": ["pomodoro", "fiftyTen", "custom"],
+          "description": "Selected preset duration name"
+        },
+        "completedSessionsCount": {
+          "type": "number",
+          "description": "Number of consecutive focus sessions completed in this cycle (0-4)"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Epoch millisecond timestamp of last write for last-write-wins"
+        },
+        "updatedByDevice": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Identifier or user agent hint for conflict debugging"
+        }
+      },
+      "required": ["status", "mode", "durationMs", "targetEndTimestamp", "remainingMs", "completedSessionsCount", "updatedAt"]
+    },
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User preferences for timer durations, notifications, sound, and theme.",
+      "type": "object",
+      "properties": {
+        "focusDurationMinutes": {
+          "type": "number",
+          "description": "Focus duration in minutes (1 - 120)"
+        },
+        "shortBreakDurationMinutes": {
+          "type": "number",
+          "description": "Short break duration in minutes (1 - 60)"
+        },
+        "longBreakDurationMinutes": {
+          "type": "number",
+          "description": "Long break duration in minutes (1 - 60)"
+        },
+        "longBreakInterval": {
+          "type": "number",
+          "description": "Number of sessions before triggering a long break"
+        },
+        "autoStartBreaks": {
+          "type": "boolean",
+          "description": "Whether breaks automatically start upon focus completion"
+        },
+        "autoStartFocus": {
+          "type": "boolean",
+          "description": "Whether focus automatically starts upon break completion"
+        },
+        "soundEnabled": {
+          "type": "boolean",
+          "description": "Whether soft completion chime sound plays"
+        },
+        "notificationEnabled": {
+          "type": "boolean",
+          "description": "Whether system notifications are triggered"
+        },
+        "theme": {
+          "type": "string",
+          "enum": ["light", "dark", "system"],
+          "description": "Preferred interface theme"
+        },
+        "dailyGoalMinutes": {
+          "type": "number",
+          "description": "Daily focus goal in minutes (10 - 720)"
+        },
+        "dailyGoalSessions": {
+          "type": "number",
+          "description": "Daily target completed sessions (1 - 30)"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Last updated epoch timestamp"
+        }
+      },
+      "required": ["focusDurationMinutes", "shortBreakDurationMinutes", "longBreakDurationMinutes", "longBreakInterval", "autoStartBreaks", "autoStartFocus", "soundEnabled", "notificationEnabled", "theme"]
+    },
+    "SessionRecord": {
+      "title": "SessionRecord",
+      "description": "Historical record of a completed focus or break session.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "description": "Unique session record ID"
+        },
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "UID of user who completed this session"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "User label assigned to the session"
+        },
+        "durationMinutes": {
+          "type": "number",
+          "description": "Length of the completed session in minutes"
+        },
+        "completedAt": {
+          "type": "string",
+          "maxLength": 32,
+          "description": "ISO 8601 completion timestamp"
+        },
+        "dayKey": {
+          "type": "string",
+          "maxLength": 10,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "Date formatted as YYYY-MM-DD for fast aggregation"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["focus", "shortBreak", "longBreak"],
+          "description": "Mode of the completed session"
+        }
+      },
+      "required": ["id", "userId", "durationMinutes", "completedAt", "dayKey", "mode"]
+    },
+    "TestConnection": {
+      "title": "TestConnection",
+      "description": "Connection test document for health checks.",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["ok"]
+        }
+      },
+      "required": ["status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/timer/state": {
+      "schema": "TimerState",
+      "description": "Live synchronized timer state for the authenticated user"
+    },
+    "/users/{userId}/settings/config": {
+      "schema": "UserSettings",
+      "description": "User settings and preferences document"
+    },
+    "/users/{userId}/sessions/{sessionId}": {
+      "schema": "SessionRecord",
+      "description": "Log of completed focus sessions for statistics and streak calculations"
+    },
+    "/test/connection": {
+      "schema": "TestConnection",
+      "description": "Health check document read on app boot"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="128" fill="#09090b"/>
+  <!-- Subtle ambient ring -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#27272a" stroke-width="14"/>
+  <!-- Focus accent arc -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#f43f5e" stroke-width="14" stroke-linecap="round" stroke-dasharray="1130" stroke-dashoffset="380" transform="rotate(-90 256 256)"/>
+  <!-- Center Minimal Hourglass / Focus Geometry -->
+  <g fill="none" stroke="#fafafa" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M196 186h120"/>
+    <path d="M196 326h120"/>
+    <path d="M206 186c0 50 50 70 50 70s50-20 50-70"/>
+    <path d="M206 326c0-50 50-70 50-70s50 20 50 70"/>
+    <circle cx="256" cy="256" r="10" fill="#f43f5e" stroke="none"/>
+  </g>
+</svg>
