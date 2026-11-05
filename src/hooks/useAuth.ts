@@ -15,7 +15,13 @@ export function useAuth() {
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Safety timeout: Never leave user stuck on loading spinner if network hangs
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      clearTimeout(safetyTimer);
       if (currentUser) {
         setUser(currentUser);
         setLoading(false);
@@ -33,7 +39,10 @@ export function useAuth() {
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      clearTimeout(safetyTimer);
+      unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = async () => {
