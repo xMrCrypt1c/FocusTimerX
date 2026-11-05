@@ -1,0 +1,14 @@
+{
+  "appId": "com.focustimerx.app",
+  "appName": "FocusTimerX",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "android": {
+    "backgroundColor": "#09090b",
+    "allowMixedContent": false
+  }
+}
