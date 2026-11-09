@@ -11,38 +11,23 @@ import { auth } from '../lib/firebase';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Safety timeout: Never leave user stuck on loading spinner if network hangs
-    const safetyTimer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      clearTimeout(safetyTimer);
-      if (currentUser) {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
         setUser(currentUser);
         setLoading(false);
-      } else {
-        // Attempt anonymous sign-in; if project has anonymous disabled, fall back to guest mode
-        try {
-          const anonCred = await signInAnonymously(auth);
-          setUser(anonCred.user);
-        } catch {
-          // Anonymous auth disabled in console - guest local session active
-          setUser(null);
-        } finally {
-          setLoading(false);
-        }
+      },
+      (error) => {
+        console.warn('Auth state change error:', error);
+        setLoading(false);
       }
-    });
+    );
 
-    return () => {
-      clearTimeout(safetyTimer);
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   const signInWithGoogle = async () => {

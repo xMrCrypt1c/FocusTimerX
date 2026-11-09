@@ -13,7 +13,7 @@ import { useTimerSync } from './hooks/useTimerSync';
 import { useWakeLock } from './hooks/useWakeLock';
 
 export default function App() {
-  const { user, loading: authLoading, isAnonymous, signInWithGoogle, signOutUser } = useAuth();
+  const { user, isAnonymous, signInWithGoogle, signOutUser } = useAuth();
   const isOnline = useOnlineStatus();
   const { playCompletionSound, playClickSound } = useAudio();
 
@@ -108,17 +108,6 @@ export default function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [timerState.status, settings.soundEnabled, startTimer, pauseTimer, resumeTimer, resetTimer, playClickSound]);
-
-  if (authLoading) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center bg-[#09090b] text-zinc-400">
-        <div className="flex flex-col items-center gap-3">
-          <span className="w-6 h-6 rounded-full border-2 border-rose-500 border-t-transparent animate-spin" />
-          <span className="text-xs font-mono tracking-wider">FOCUS TIMER X</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen flex-col bg-[#fafafa] dark:bg-[#09090b] text-zinc-900 dark:text-[#f4f4f5] transition-colors duration-300">
